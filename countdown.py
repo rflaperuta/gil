@@ -1,48 +1,21 @@
 """
 
-Measures on 4 core Intel cpu:
-
-+-------------+--------+-------+-------+-------+-------+
-|             | linear | 2x    | 4x    | 8x    | 16x   |
-+-------------+--------+-------+-------+-------+-------+
-| Python 2.6  | 6,5    | 5,4   | 3,3   | 1,7   | 1,0   |
-+-------------+--------+-------+-------+-------+-------+
-| Python 2.7  | 7,1    | 5,7   | 3,3   | 1,6   | 0,9   |
-+-------------+--------+-------+-------+-------+-------+
-| Python 3.2  | 9,6    | 15,5  | 7,5   | 3,9   | 1,8   |
-+-------------+--------+-------+-------+-------+-------+
-| Python 3.3  | 9,7    | 15,2  | 7,3   | 3,7   | 1,8   |
-+-------------+--------+-------+-------+-------+-------+
-| Pypy        | 0,1    | 0,2   | 0,1   | 0,1   | < 0,1 |
-+-------------+--------+-------+-------+-------+-------+
-| Jython      | 4,0    | 1,0   | 0,4   | 0,2   | 0,1   |
-+-------------+--------+-------+-------+-------+-------+
-| IronPython  | not measured                           |
-+-------------+--------+-------+-------+-------+-------+
-
-
 Measures on 8 core AMD cpu:
 
-+-------------+--------+-------+-------+-------+-------+
-|             | linear | 2x    | 4x    | 8x    | 16x   |
-+-------------+--------+-------+-------+-------+-------+
-| Python 2.6  | 6,8    | 9,6   | 6,3   | 3,0   | 1,5   |
-+-------------+--------+-------+-------+-------+-------+
-| Python 2.7  | 7,4    | 10,0  | 6,5   | 3,3   | 1,6   |
-+-------------+--------+-------+-------+-------+-------+
-| Python 3.2  | 8,3    | 14,9  | 6,4   | 3,0   | 1,5   |
-+-------------+--------+-------+-------+-------+-------+
-| Python 3.3  | 8,0    | 14,9  | 6,5   | 3,3   | 1,5   |
-+-------------+--------+-------+-------+-------+-------+
-| Pypy        | 0,1    | 0,3   | 0,1   | 0,1   | < 0,1 |
-+-------------+--------+-------+-------+-------+-------+
-| Jython      | 4,6    | 1,4   | 1,0   | 0,1   | 0,1   |
-+-------------+--------+-------+-------+-------+-------+
-| IronPython  | not measured                           |
-+-------------+--------+-------+-------+-------+-------+
+**proper coming up, previous one were shit**
+
 
 """
 
+
+SKIP_MULTIPROCESSING = False
+
+
+try:
+    from multiprocessing import Process
+except ImportError:
+    Process = None
+    SKIP_MULTIPROCESSING = True
 import time
 from threading import Thread
 
@@ -79,7 +52,7 @@ def countdown_threaded(n, threads=2):
     thread_list = []
 
     for t in range(threads):
-        t = Thread(target=countdown, args=(n / threads,))
+        t = Thread(target=countdown, args=(n,))
         thread_list.append(t)
     for t in thread_list:
         t.start()
@@ -87,10 +60,31 @@ def countdown_threaded(n, threads=2):
         t.join()
 
 
+def countdown_multiprocessing(n, processes=2):
+    n = n / processes
+    process_list = []
+
+    for p in range(processes):
+        p = Process(target=countdown, args=(n,))
+        process_list.append(p)
+    for p in process_list:
+        p.start()
+    for p in process_list:
+        p.join()
+
+
 if __name__ == '__main__':
     limit = 100 * 1000 * 1000 # Walesa, give me my 1,000,000 back!
+
     timeit(countdown_linear)(limit)
+
     timeit(countdown_threaded)(limit, threads=2)
     timeit(countdown_threaded)(limit, threads=4)
     timeit(countdown_threaded)(limit, threads=8)
     timeit(countdown_threaded)(limit, threads=16)
+
+    if not SKIP_MULTIPROCESSING:
+        timeit(countdown_multiprocessing)(limit, 2)
+        timeit(countdown_multiprocessing)(limit, 4)
+        timeit(countdown_multiprocessing)(limit, 8)
+        timeit(countdown_multiprocessing)(limit, 16)
