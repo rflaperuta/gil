@@ -13,9 +13,9 @@ Measures on 8 core AMD cpu:
 +-------------+--------+-------+-------+-------+-------+
 | Python 3.3  | 8,0    | 14,9  | 6,5   | 3,3   | 1,5   |
 +-------------+--------+-------+-------+-------+-------+
-| Pypy        | 0,2    | 0,3   | 0,1   | 0,1   | < 0,1 |
+| Pypy        | 0,1    | 0,3   | 0,1   | 0,1   | < 0,1 |
 +-------------+--------+-------+-------+-------+-------+
-| Jython      | not measured                           |
+| Jython      | 4,6    | 1,4   | 1,0   | 0,1   | 0,1   |
 +-------------+--------+-------+-------+-------+-------+
 | IronPython  | not measured                           |
 +-------------+--------+-------+-------+-------+-------+
@@ -47,12 +47,12 @@ def countdown(n):
         n -= 1
 
 
-@timeit
+# @timeit
 def countdown_linear(n):
     countdown(n)
 
 
-@timeit
+# @timeit
 def countdown_threaded(n, threads=2):
     n = n / threads
     thread_list = []
@@ -68,8 +68,8 @@ def countdown_threaded(n, threads=2):
 
 if __name__ == '__main__':
     limit = 100 * 1000 * 1000 # Walesa, give me my 1,000,000 back!
-    countdown_linear(limit)
-    countdown_threaded(limit, threads=2)
-    countdown_threaded(limit, threads=4)
-    countdown_threaded(limit, threads=8)
-    countdown_threaded(limit, threads=16)
+    timeit(countdown_linear)(limit)
+    timeit(countdown_threaded)(limit, threads=2)
+    timeit(countdown_threaded)(limit, threads=4)
+    timeit(countdown_threaded)(limit, threads=8)
+    timeit(countdown_threaded)(limit, threads=16)
