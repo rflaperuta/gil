@@ -1,13 +1,3 @@
-"""
-
-Measures on 8 core AMD cpu:
-
-**proper coming up, previous one were shit**
-
-
-"""
-
-
 SKIP_MULTIPROCESSING = False
 
 
